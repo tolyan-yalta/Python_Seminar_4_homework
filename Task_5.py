@@ -9,8 +9,7 @@
 # 40x⁹ - x⁸ -5x⁷ + 15x⁶ +5x⁴ + 5x³ + x² - 13x¹ + 53 = 0
 
 
-
-def power_zero(value):
+def power_zero(value):  # Проверка на наличие элемента без 'x'
     for i in value:
         if ord(i) == 120:
             return False
@@ -33,79 +32,105 @@ def join_plus_minus(value):   # Удаление лишних пробелов �
         value = value.replace('- ', '-')
     return value
 
-def x(value, d2):
-    t = value.split('x')
+def change_code_94(value):   # Замена ^
+    count_code = value.count('^')
+    for i in range(count_code):
+        temp = value.find('^')
+        value = value[:temp] + chr(Unicode[int(value[temp+1:temp+2])]) + value[temp+2:]
+    return value
+
+def change_code_42(value):   # Замена *
+    count_code = value.count('**')
+    for i in range(count_code):
+        temp = value.find('**')
+        value = value[:temp] + chr(Unicode[int(value[temp+2:temp+3])]) + value[temp+3:]
+    return value
+
+def return_number_and_power(value): # Возвращает из строки число и степень
+    t0, t1 = value.split('x')
     for i in range(1, 10):
-        if t[1] == d2[i][1]:
-            p = i
+        if ord(t1) == Unicode[i]:
+            power = i
             break
             
-    if t[0] == '+':
-        arg = 1
-    elif t[0] == '-':
-        arg = -1
+    if t0 == '+':
+        number = 1
+    elif t0 == '-':
+        number = -1
     else:
-        arg = int(t[0])
-    return arg, p
+        number = float(t0)
+    return number, power
 
-with open('Unicode.txt', 'r', encoding='utf-8') as U:
-    d = U.readline()
-
-#print(d)
-d1 = d.split()
-d2 = []
-for i in range(len(d1)):
-    d2.append(d1[i].split(':'))
-#print(d2)
+        #   0     1    2    3     4    5     6     7      8     9    ^  * 
+Unicode = [8304, 185, 178, 179, 8308, 8309, 8310, 8311, 8312, 8313, 94, 42]
 
 with open('polynomial_1.txt', 'r', encoding='utf-8') as f:
     polynomial_1 = f.readline()
 
-
+print(polynomial_1)
 polynomial_1 = delete_0(polynomial_1)
 polynomial_1 = join_plus_minus(polynomial_1)
-print(polynomial_1)
+polynomial_1 = change_code_94(polynomial_1)
+polynomial_1 = change_code_42(polynomial_1)
+
 first_list = polynomial_1.split()
 
-#print(first_list[-1])
-
 result = [0]
-for i in range(8):
+for i in range(9):
     result.append(0)
 
 if power_zero(first_list[-1]):
-    result.append(int(first_list[-1]))
-else:
-    result.append(0)
-#print(result)
+    result[-1] = float(first_list[-1])
 
 for i in range(2, len(first_list)+1):
-    a, b = x(first_list[-i], d2)
-    result[-b-1] = a
-print(result)
+    number, power = return_number_and_power(first_list[-i])
+    result[-power-1] = number
 
 with open('polynomial_2.txt', 'r', encoding='utf-8') as f:
     polynomial_2 = f.readline()
 
+print(polynomial_2)
 polynomial_2 = delete_0(polynomial_2)
 polynomial_2 = join_plus_minus(polynomial_2)
-print(polynomial_2)
+polynomial_2 = change_code_94(polynomial_2)
+polynomial_2 = change_code_42(polynomial_2)
+
 second_list = polynomial_2.split()
 
-# second_result = [0]
-# for i in range(8):
-#     second_result.append(0)
-
 if power_zero(second_list[-1]):
-    result[-1] = result[-1] + int(second_list[-1])
-    #second_result.append(int(second_list[-1]))
-# else:
-#     second_result.append(0)
-#print(second_result)
-
+    result[-1] = result[-1] + float(second_list[-1])
 
 for i in range(2, len(second_list)+1):
-    a, b = x(second_list[-i], d2)
-    result[-b-1] = result[-b-1] + a
+    number, power = return_number_and_power(second_list[-i])
+    result[-power-1] = result[-power-1] + number
 
-print(result)
+polynomial_result = ''
+for i in range(9):
+    if round(result[i]) - int(result[i]) == 0:
+        result[i] = int(result[i])
+    if result[i] == 0:
+        continue
+    elif result[i] == 1:
+        if i == 0:
+            polynomial_result = polynomial_result + 'x' + str(chr(Unicode[9-i])) + ' '
+        else:
+            polynomial_result = polynomial_result + '+ ' + 'x' + str(chr(Unicode[9-i])) + ' '
+    elif result[i] == -1:
+        polynomial_result = polynomial_result + '- ' + 'x' + str(chr(Unicode[9-i])) + ' '
+    elif result[i] > 0:
+        if i == 0:
+            polynomial_result = polynomial_result + str(result[i]) + 'x' + str(chr(Unicode[9-i])) + ' '
+        else:
+            polynomial_result = polynomial_result + '+ ' + str(result[i]) + 'x' + str(chr(Unicode[9-i])) + ' '
+    elif result[i] < -1:
+        polynomial_result = polynomial_result + '- ' + str(abs(result[i])) + 'x' + str(chr(Unicode[9-i])) + ' '
+if result[9] > 0:
+    polynomial_result = polynomial_result + '+ ' + str(result[9]) + ' = 0'
+elif result[9] < 0:
+    polynomial_result = polynomial_result + '- ' + str(abs(result[9])) + ' = 0'
+else:
+    polynomial_result = polynomial_result + ' = 0'
+print(polynomial_result)
+
+with open('polynomial_result.txt', 'a', encoding='utf-8') as f:
+    f.write(polynomial_result + '\n')
