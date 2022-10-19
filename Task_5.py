@@ -11,6 +11,7 @@
 
 def power_zero(value):  # Проверка на наличие элемента без 'x'
     for i in value:
+        k = ord(i)
         if ord(i) == 120:
             return False
         elif i == value[-1]:
@@ -124,6 +125,8 @@ for i in range(9):
             polynomial_result = polynomial_result + '+ ' + str(result[i]) + 'x' + str(chr(Unicode[9-i])) + ' '
     elif result[i] < -1:
         polynomial_result = polynomial_result + '- ' + str(abs(result[i])) + 'x' + str(chr(Unicode[9-i])) + ' '
+if round(result[9]) - int(result[9]) == 0:
+        result[9] = int(result[9])
 if result[9] > 0:
     polynomial_result = polynomial_result + '+ ' + str(result[9]) + ' = 0'
 elif result[9] < 0:
