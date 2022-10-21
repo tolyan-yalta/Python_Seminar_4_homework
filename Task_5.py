@@ -133,6 +133,12 @@ elif result[9] < 0:
     polynomial_result = polynomial_result + '- ' + str(abs(result[9])) + ' = 0'
 else:
     polynomial_result = polynomial_result + ' = 0'
+
+# if str(chr(185)) in polynomial_result:
+#     polynomial_result = polynomial_result.replace(str(chr(185)), '')
+if '¹' in polynomial_result:
+    polynomial_result = polynomial_result.replace('¹', '')
+
 print(polynomial_result)
 
 with open('polynomial_result.txt', 'a', encoding='utf-8') as f:
